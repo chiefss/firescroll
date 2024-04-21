@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firescroll Configuration</title>
+
+    <style>
+        .flex-container { display: flex; flex-direction: column; }
+        .flex-row { display: flex; }
+        .flex-cell { flex: 1; border-bottom: 1px solid black; padding: 10px; }
+        .flex-row:last-child .flex-cell { border-bottom: none; }
+        .saveButton { text-align: center; margin-top: 35px; }
+    </style>
+</head>
+<body>
+
+<h1>Firescroll Configuration</h1>
+
+<div class="flex-container">
+    <div class="flex-row">
+        <div class="flex-cell"><label for="slowSpeedInput" class="text">Slow speed<span class="slowSpeedDefaultValueElement"></span>:</label></div>
+        <div class="flex-cell"><input type="number" id="slowSpeedInput" class="input"></div>
+    </div>
+    <div class="flex-row">
+        <div class="flex-cell"><label for="normalSpeedInput" class="text">Normal speed<span class="normalSpeedDefaultValueElement"></span>:</label></div>
+        <div class="flex-cell"><input type="number" id="normalSpeedInput" class="input"></div>
+    </div>
+    <div class="flex-row">
+        <div class="flex-cell"><label for="fastSpeedInput" class="text">Fast speed<span class="fastSpeedDefaultValueElement"></span>:</label></div>
+        <div class="flex-cell"><input type="number" id="fastSpeedInput" class="input"></div>
+    </div>
+</div>
+
+<button id="saveButton" class="saveButton">Save</button>
+
+<script src="lib/Constant.js"></script>
+<script src="options.js"></script>
+
+</body>
+</html>
