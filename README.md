@@ -6,4 +6,4 @@
 
 Mozilla Firefox extension.
 
-Add auto scroll button to pages for.
+Add auto scroll button to pages.
