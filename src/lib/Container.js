@@ -75,9 +75,33 @@ class Container {
         this._moveElement(e.touches[0].clientX, e.touches[0].clientY);
     }
 
+    _getRightPosition(clientX) {
+        let rightPosition = document.documentElement.clientWidth - clientX + this._mouseOffsetX;
+        if (rightPosition < 0) {
+            return 0;
+        }
+        let maxPosition = document.documentElement.clientWidth - this._element.getBoundingClientRect().width;
+        if (rightPosition > maxPosition) {
+            return maxPosition;
+        }
+        return rightPosition;
+    }
+
+    _getBottomPosition(clientY) {
+        let bottomPosition = document.documentElement.clientHeight - clientY + this._mouseOffsetY;
+        if (bottomPosition < 0) {
+            return 0;
+        }
+        let maxPosition = document.documentElement.clientHeight - this._element.getBoundingClientRect().height;
+        if (bottomPosition > maxPosition) {
+            return maxPosition;
+        }
+        return bottomPosition;
+    }
+
     _moveElement(clientX, clientY) {
-        this._element.style.right = `${document.documentElement.clientWidth - clientX + this._mouseOffsetX}px`;
-        this._element.style.bottom = `${document.documentElement.clientHeight - clientY + this._mouseOffsetY}px`;
+        this._element.style.right = `${this._getRightPosition(clientX)}px`;
+        this._element.style.bottom = `${this._getBottomPosition(clientY)}px`;
     }
 
     _mouseUpHandler() {
