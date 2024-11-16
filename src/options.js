@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let normalSpeedInput = document.getElementById('normalSpeedInput');
     let fastSpeedInput = document.getElementById('fastSpeedInput');
     let saveButton = document.getElementById('saveButton');
+    let clearPositionsButton = document.getElementById('clearPositionsButton');
     let defaultSlowSpeedElement = document.querySelector(".slowSpeedDefaultValueElement");
     let defaultNormalSpeedElement = document.querySelector(".normalSpeedDefaultValueElement");
     let defaultFastSpeedElement = document.querySelector(".fastSpeedDefaultValueElement");
@@ -32,5 +33,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let fastSpeedValue = parseInt(fastSpeedInput.value);
         browser.storage.local.set({ firescrollFastSpeedValue: fastSpeedValue });
+    });
+
+    clearPositionsButton.addEventListener('click', function() {
+        browser.storage.local.remove(Constant.FIRESCROLL_CONTAINER_POSITION);
     });
 });

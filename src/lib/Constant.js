@@ -7,4 +7,5 @@ class Constant {
     static get FIRESCROLL_SLOW_SPEED_VALUE_OPTION_NAME() { return 'firescrollSlowSpeedValue' };
     static get FIRESCROLL_NORMAL_SPEED_VALUE_OPTION_NAME() { return 'firescrollNormalSpeedValue' };
     static get FIRESCROLL_FAST_SPEED_VALUE_OPTION_NAME() { return 'firescrollFastSpeedValue' };
+    static get FIRESCROLL_CONTAINER_POSITION() { return 'firescrollContainerPosition' };
 }

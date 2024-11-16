@@ -106,11 +106,14 @@ class Container {
 
     _mouseUpHandler() {
         this._removeEventListeners();
+        this._draggingState.setState(false);
+        this._saveContainerPosition();
     }
 
     _touchEndHandler() {
         this._removeEventListeners();
         this._draggingState.setState(false);
+        this._saveContainerPosition();
     }
 
     _removeEventListeners() {
@@ -120,13 +123,39 @@ class Container {
         document.removeEventListener('touchend', this._touchEndHandlerBound);
     }
 
+    _saveContainerPosition() {
+        let that = this;
+        browser.storage.local.get(Constant.FIRESCROLL_CONTAINER_POSITION).then(result => {
+            let host = that._getHost();
+            let containerPositionDto = new ContainerPositionDto(that._element.style.right, that._element.style.bottom);
+            let containerPosition = result.firescrollContainerPosition || {};
+            containerPosition[host] = containerPositionDto;
+            browser.storage.local.set({ firescrollContainerPosition: containerPosition });
+        });
+    }
+
+    _getHost() {
+        return location.host;
+    }
+
     _buildElement() {
+        let that = this;
         let element = document.createElement('div');
         let subElement = document.createElement('div');
         element.style.position = 'fixed';
         element.style.zIndex = '10000';
         element.style.right = '15px';
         element.style.bottom = '15px';
+        browser.storage.local.get(Constant.FIRESCROLL_CONTAINER_POSITION).then(result => {
+            let host = that._getHost();
+            let firescrollContainerPosition = result.firescrollContainerPosition || {};
+            if (!(host in firescrollContainerPosition)) {
+                return;
+            }
+            let containerPosition = ContainerPositionDto.build(firescrollContainerPosition[host]);
+            element.style.right = containerPosition.getRight();
+            element.style.bottom = containerPosition.getBottom();
+        });
         element.style.touchAction = 'none';
         subElement.style.display = 'flex';
         subElement.style.alignItems = 'center';
