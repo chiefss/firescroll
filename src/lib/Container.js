@@ -105,15 +105,21 @@ class Container {
     }
 
     _mouseUpHandler() {
+        let that = this;
         this._removeEventListeners();
-        this._draggingState.setState(false);
         this._saveContainerPosition();
+        setTimeout(function() {
+            that._draggingState.setState(false);
+        }, Constant.DRAGGING_STATE_TIMEOUT);
     }
 
     _touchEndHandler() {
+        let that = this;
         this._removeEventListeners();
-        this._draggingState.setState(false);
         this._saveContainerPosition();
+        setTimeout(function() {
+            that._draggingState.setState(false);
+        }, Constant.DRAGGING_STATE_TIMEOUT);
     }
 
     _removeEventListeners() {
