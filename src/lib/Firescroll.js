@@ -42,6 +42,13 @@ class Firescroll {
         });
         window.addEventListener('wheel', this._stopScrollingBound);
         this._firescrollControlPanel.getContainer().initListeners();
+        document.addEventListener('fullscreenchange', function() {
+          if (document.fullscreenElement == null) {
+            that._firescrollControlPanel.getContainer().showElement();
+          } else {
+            that._firescrollControlPanel.getContainer().hideElement();
+          }
+        });
     }
 
     _startScrolling() {

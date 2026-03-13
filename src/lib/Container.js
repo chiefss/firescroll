@@ -47,6 +47,14 @@ class Container {
         this._element.addEventListener('mousedown', this._dragEventListenerBound);
         this._element.addEventListener('touchstart', this._dragEventListenerBound);
     }
+  
+    hideElement() {
+        this._element.style.display = 'none';
+    }
+
+    showElement() {
+        this._element.style.display = '';
+    }
 
     _dragEventListener(e) {
         // Если это событие touch, используем первое касание
