@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let fastSpeedInput = document.getElementById('fastSpeedInput');
     let saveButton = document.getElementById('saveButton');
     let clearPositionsButton = document.getElementById('clearPositionsButton');
+    let excludedDomainsInput = document.getElementById('excludedDomainsInput');
     let defaultSlowSpeedElement = document.querySelector(".slowSpeedDefaultValueElement");
     let defaultNormalSpeedElement = document.querySelector(".normalSpeedDefaultValueElement");
     let defaultFastSpeedElement = document.querySelector(".fastSpeedDefaultValueElement");
@@ -24,6 +25,11 @@ document.addEventListener('DOMContentLoaded', function() {
         fastSpeedInput.value = result.firescrollFastSpeedValue || Constant.SPEED_FAST_VALUE;
     });
 
+    browser.storage.local.get(Constant.FIRESCROLL_EXCLUDED_DOMAINS_OPTION_NAME).then(result => {
+        let excludedDomains = result.firescrollExcludedDomains || [];
+        excludedDomainsInput.value = excludedDomains.join('\n');
+    });
+
     saveButton.addEventListener('click', function() {
         let slowSpeedValue = parseInt(slowSpeedInput.value);
         browser.storage.local.set({ firescrollSlowSpeedValue: slowSpeedValue });
@@ -33,6 +39,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let fastSpeedValue = parseInt(fastSpeedInput.value);
         browser.storage.local.set({ firescrollFastSpeedValue: fastSpeedValue });
+
+        let excludedDomains = excludedDomainsInput.value.split('\n').map(d => d.trim().toLowerCase()).filter(d => d.length > 0);
+        browser.storage.local.set({ firescrollExcludedDomains: excludedDomains });
     });
 
     clearPositionsButton.addEventListener('click', function() {

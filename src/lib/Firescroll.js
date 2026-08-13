@@ -22,14 +22,66 @@ class Firescroll {
         this._currentSpeed = Firescroll.SPEED_SLOW;
         this._doubleClickFastSpeedTimeout = null;
         this._stopScrollingBound = this._stopScrolling.bind(this);
+        this._isInitialized = false;
+        this._appendToElement = null;
+        this._listenersInitialized = false;
+        this._isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        this._contextMenuElement = null;
+        this._suppressNextClick = false;
+        this._initMessageListener();
     }
 
     init(element) {
-        this._firescrollControlPanel.getContainer().addElementTo(element);
+        this._appendToElement = element;
+        if (this._isInitialized) {
+            return;
+        }
+        browser.storage.local.get(Constant.FIRESCROLL_EXCLUDED_DOMAINS_OPTION_NAME).then(result => {
+            let excludedDomains = result.firescrollExcludedDomains || [];
+            let currentDomain = window.location.hostname.trim().toLowerCase();
+            if (excludedDomains.indexOf(currentDomain) === -1) {
+                this._initElement();
+            }
+        });
+    }
+
+    hide() {
+        if (!this._isInitialized) {
+            return;
+        }
+        this._isInitialized = false;
+        this._hideContextMenu();
+        this._firescrollControlPanel.getContainer().getElement().remove();
+    }
+
+    isInitialized() {
+        return this._isInitialized;
+    }
+
+    _initMessageListener() {
+        browser.runtime.onMessage.addListener(message => {
+            if (message.type === 'FIRESCROLL_HIDE') {
+                this.hide();
+            } else if (message.type === 'FIRESCROLL_SHOW') {
+                this.init(this._appendToElement);
+            }
+        });
+    }
+
+    _initElement() {
+        if (this._isInitialized) {
+            return;
+        }
+        this._isInitialized = true;
+        this._firescrollControlPanel.getContainer().addElementTo(this._appendToElement);
         this._initListeners();
     }
 
     _initListeners() {
+        if (this._listenersInitialized) {
+            return;
+        }
+        this._listenersInitialized = true;
         let that = this;
         this._firescrollControlPanel.getContainer().getControlContainer().getHalfSkipButton().initListeners();
         this._firescrollControlPanel.getContainer().getScrollButton().initListeners(function(e) {
@@ -48,6 +100,106 @@ class Firescroll {
           } else {
             that._firescrollControlPanel.getContainer().hideElement();
           }
+        });
+        this._initContextMenu();
+    }
+
+    _initContextMenu() {
+        let that = this;
+        let element = this._firescrollControlPanel.getContainer().getElement();
+
+        element.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            if (!that._isTouchDevice) {
+                that._hideContextMenu();
+                that._showContextMenu(e.clientX, e.clientY);
+            }
+        });
+
+        element.addEventListener('click', function(e) {
+            if (that._suppressNextClick) {
+                e.preventDefault();
+                e.stopPropagation();
+                that._suppressNextClick = false;
+            }
+        }, true);
+
+        document.addEventListener('click', function(e) {
+            if (that._contextMenuElement != null && !that._contextMenuElement.contains(e.target)) {
+                that._hideContextMenu();
+            }
+        }, true);
+
+        if (this._isTouchDevice) {
+            let longPressTimer = null;
+            element.addEventListener('touchstart', function(e) {
+                that._hideContextMenu();
+                that._suppressNextClick = false;
+                clearTimeout(longPressTimer);
+                let touch = e.changedTouches[0];
+                let x = touch.clientX;
+                let y = touch.clientY;
+                longPressTimer = setTimeout(function() {
+                    that._suppressNextClick = true;
+                    that._showContextMenu(x, y);
+                }, Constant.LONG_PRESS_TIMEOUT);
+            });
+            element.addEventListener('touchmove', function() {
+                clearTimeout(longPressTimer);
+            });
+            element.addEventListener('touchend', function() {
+                clearTimeout(longPressTimer);
+            });
+        }
+    }
+
+    _showContextMenu(x, y) {
+        this._hideContextMenu();
+        let menu = document.createElement('div');
+        menu.style.position = 'fixed';
+        menu.style.zIndex = '10001';
+        menu.style.background = '#F8F8F8FF';
+        menu.style.border = '1px solid #ccc';
+        menu.style.borderRadius = '8px';
+        menu.style.padding = '4px';
+        menu.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+        let button = document.createElement('div');
+        button.textContent = 'Hide on current domain';
+        button.style.padding = '8px 12px';
+        button.style.fontSize = '13px';
+        button.style.color = '#333';
+        button.style.cursor = 'pointer';
+        button.style.userSelect = 'none';
+        button.style.whiteSpace = 'nowrap';
+        menu.insertAdjacentElement('beforeend', button);
+        document.body.insertAdjacentElement('beforeend', menu);
+        let rect = menu.getBoundingClientRect();
+        menu.style.left = Math.max(0, Math.min(x, window.innerWidth - rect.width - 2)) + 'px';
+        menu.style.top = Math.max(0, Math.min(y, window.innerHeight - rect.height - 2)) + 'px';
+        this._contextMenuElement = menu;
+        let that = this;
+        button.addEventListener('click', function() {
+            that._hideElementOnCurrentDomain();
+        });
+    }
+
+    _hideContextMenu() {
+        if (this._contextMenuElement != null) {
+            this._contextMenuElement.remove();
+            this._contextMenuElement = null;
+        }
+    }
+
+    _hideElementOnCurrentDomain() {
+        this._hideContextMenu();
+        let currentDomain = window.location.hostname.trim().toLowerCase();
+        browser.storage.local.get(Constant.FIRESCROLL_EXCLUDED_DOMAINS_OPTION_NAME).then(result => {
+            let excludedDomains = result.firescrollExcludedDomains || [];
+            if (excludedDomains.indexOf(currentDomain) === -1) {
+                excludedDomains.push(currentDomain);
+                browser.storage.local.set({ firescrollExcludedDomains: excludedDomains });
+            }
+            this.hide();
         });
     }
 
