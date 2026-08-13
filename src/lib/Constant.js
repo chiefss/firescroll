@@ -8,5 +8,7 @@ class Constant {
     static get FIRESCROLL_NORMAL_SPEED_VALUE_OPTION_NAME() { return 'firescrollNormalSpeedValue' };
     static get FIRESCROLL_FAST_SPEED_VALUE_OPTION_NAME() { return 'firescrollFastSpeedValue' };
     static get FIRESCROLL_CONTAINER_POSITION() { return 'firescrollContainerPosition' };
+    static get FIRESCROLL_EXCLUDED_DOMAINS_OPTION_NAME() { return 'firescrollExcludedDomains' };
     static get DRAGGING_STATE_TIMEOUT() { return 100 };
+    static get LONG_PRESS_TIMEOUT() { return 3000 };
 }
